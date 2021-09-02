@@ -1,0 +1,66 @@
+<div class="container mt-3">
+   <div class="row">
+      <div class="col-6">
+         <% if (typeof errors != 'undefined') { %>
+         <div class="alert alert-danger fw-bold" role="alert">
+            <ul>
+               <% errors.forEach(error => { %>
+               <li><%= error.msg %></li>
+               <% }) %>
+            </ul>
+         </div>
+         <% } %>
+         <form action="/bookUpdate" method="POST" id="form">
+            <input type="hidden" name="idOld" value="<%= data.value.id %> " />
+            <div class="mb-3">
+               <label for="id" class="form-label">Id Book</label>
+               <input
+                  type="number"
+                  class="form-control"
+                  name="id"
+                  id="id"
+                  readonly
+                  value="<%= data.value.id %>"
+               />
+            </div>
+            <div class="mb-3">
+               <label for="name" class="form-label">Name Book</label>
+               <input
+                  type="text"
+                  class="form-control"
+                  name="name"
+                  id="name"
+                  value="<%= data.value.name %>"
+                  required
+               />
+            </div>
+            <div class="mb-3">
+               <label for="author" class="form-label">Author</label>
+               <input
+                  type="text"
+                  class="form-control"
+                  name="author"
+                  id="author"
+                  value="<%= data.value.author %>"
+                  required
+               />
+            </div>
+            <div class="mb-3">
+               <label for="publisher" class="form-label">Publisher</label>
+               <input
+                  type="text"
+                  class="form-control"
+                  id="publisher"
+                  name="publisher"
+                  value="<%= data.value.publisher %>"
+                  required
+               />
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+         </form>
+      </div>
+   </div>
+</div>
+<script>
+   document.getElementById("form").style.fontWeight = "bold";
+</script>

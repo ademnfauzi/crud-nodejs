@@ -1,6 +1,15 @@
 <div class="container mt-3">
    <div class="row">
       <div class="col-6">
+         <% if (typeof errors != 'undefined') { %>
+         <div class="alert alert-danger fw-bold" role="alert">
+            <ul>
+               <% errors.forEach(error => { %>
+               <li><%= error.msg %></li>
+               <% }) %>
+            </ul>
+         </div>
+         <% } %>
          <form action="/book" method="POST">
             <div class="mb-3">
                <label for="id" class="form-label">Id Book</label>

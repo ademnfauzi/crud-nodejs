@@ -36,8 +36,32 @@ const addBook = (result) => {
    overwrite(books);
 };
 
+const findById = (id) => {
+   const books = loadData();
+   const resultFind = books.find((book) => book.id === id);
+   return resultFind;
+};
+
+const deleteBook = (id) => {
+   const books = loadData();
+   const filter = books.filter((book) => book.id !== id);
+   console.log(filter);
+   overwrite(filter);
+};
+
+const updateBook = (value) => {
+   const books = loadData();
+   const filteredBook = books.filter((book) => book.id != value.id);
+   delete value.idOld;
+   filteredBook.push(value);
+   overwrite(filteredBook);
+};
+
 module.exports = {
    loadData,
    checkDuplicate,
    addBook,
+   findById,
+   deleteBook,
+   updateBook,
 };

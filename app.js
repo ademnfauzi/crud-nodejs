@@ -4,7 +4,14 @@ const expressLayouts = require("express-ejs-layouts");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const flash = require("connect-flash");
-const { loadData, checkDuplicate, addBook } = require("./utils/books");
+const {
+   loadData,
+   checkDuplicate,
+   addBook,
+   findById,
+   deleteBook,
+   updateBook,
+} = require("./utils/books");
 const { check, body, validationResult } = require("express-validator");
 
 // setup express
@@ -32,7 +39,7 @@ app.use(flash());
 
 // on the port
 app.listen(port, () => {
-   console.log(`You can klik at http://localhost:${port}`);
+   console.log(`You can klik at => http://localhost:${port}`);
 });
 
 app.get("/", (req, res) => {
@@ -56,6 +63,7 @@ app.get("/books", (req, res) => {
    res.render("books", {
       layout: "../layouts/main",
       data,
+      msg: req.flash("msg"),
    });
 });
 
@@ -92,15 +100,77 @@ app.post(
          const data = {
             title: "Add Books Page",
             nav: "Books",
-            error: errors.array(),
          };
          res.render("add-book", {
             layout: "../layouts/main",
             data,
+            errors: errors.array(),
          });
       } else {
          addBook(req.body);
          req.flash("msg", "Success for add book");
+         res.redirect("/books");
+      }
+   }
+);
+
+app.get("/bookDelete/:id", (req, res) => {
+   // res.send(req.params.id);
+   const book = findById(req.params.id);
+   if (!book) {
+      res.status(404);
+      res.send("<h1>File Not Found</h1>");
+   } else {
+      // res.send(book);
+      deleteBook(req.params.id);
+      // res.send(deleteBook);
+      req.flash("msg", "Success for deleted book");
+      res.redirect("/books");
+   }
+});
+
+app.get("/bookEdit/:id", (req, res) => {
+   const book = findById(req.params.id);
+   // res.send(book);
+   if (!book) {
+      res.status(404);
+      res.send("<h1>File Not Found</h1>");
+   } else {
+      const data = {
+         title: "Edit Books Page",
+         nav: "Books",
+         value: book,
+      };
+      res.render("edit-book", {
+         layout: "../layouts/main",
+         data,
+      });
+   }
+});
+
+app.post(
+   "/bookUpdate",
+   [
+      check("id", "Id length must be at least 3 and max 5")
+         .isNumeric()
+         .isLength({ max: 5, min: 3 }),
+   ],
+   (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+         const data = {
+            title: "Edit Books Page",
+            nav: "Books",
+         };
+         res.render("edit-book", {
+            layout: "../layouts/main",
+            data,
+            errors: errors.array(),
+         });
+      } else {
+         // res.send(req.body);
+         updateBook(req.body);
+         req.flash("msg", "Success for edit book");
          res.redirect("/books");
       }
    }

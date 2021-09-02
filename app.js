@@ -1,9 +1,11 @@
 // call modules
 const express = require("express");
 const expressLayouts = require("express-ejs-layouts");
+require("./utils/connection");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const flash = require("connect-flash");
+const methodOverrride = require("method-override");
 const {
    loadData,
    checkDuplicate,
@@ -12,11 +14,17 @@ const {
    deleteBook,
    updateBook,
 } = require("./utils/books");
+const schemaBook = require("./models/userModel");
+const { findOne } = require("./models/userModel");
+const { error } = require("console");
 const { check, body, validationResult } = require("express-validator");
 
 // setup express
 const app = express();
 const port = 3000;
+
+// setup override method
+app.use(methodOverrride("_method"));
 
 // setup ejs
 app.set("view engine", "ejs");
@@ -175,6 +183,24 @@ app.post(
       }
    }
 );
+
+// mongo db
+
+app.get("/users", async (req, res) => {
+   // res.send("hello world");
+   const users = await schemaBook.find();
+   // res.send(users);
+   const data = {
+      title: "User Page",
+      nav: "User",
+      users,
+   };
+   res.render("user", {
+      layout: "../layouts/main",
+      data,
+      msg: req.flash("msg"),
+   });
+});
 
 // midlleware if the route not found
 app.use((req, res) => {

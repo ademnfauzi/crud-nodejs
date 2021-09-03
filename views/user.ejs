@@ -1,5 +1,5 @@
 <div class="container mt-3">
-   <a href="/addBook" class="btn btn-primary my-3">Add Book</a>
+   <a href="/user/add" class="btn btn-primary my-3">Add User</a>
    <% if (msg.length != 0) { %>
    <div class="alert alert-success fw-bold" role="alert"><%= msg; %></div>
    <% } %>
@@ -26,12 +26,15 @@
                <a href="/userEdit/<%= user._id %>" class="badge bg-warning btn"
                   >Edit</a
                >
-               <a
-                  href="/userDelete/<%= user._id %>"
-                  onclick="return confirm('Are you sure ?');"
-                  class="badge bg-danger btn"
-                  >Delete</a
-               >
+               <form action="/users?_method=DELETE" method="POST">
+                  <input type="hidden" name="id" value="<%= user._id %>" />
+                  <button
+                     onclick="return confirm('Are you sure ?');"
+                     class="badge bg-danger btn"
+                  >
+                     Delete
+                  </button>
+               </form>
             </td>
          </tr>
          <% }) %>

@@ -17,7 +17,7 @@ const {
 const schemaBook = require("./models/userModel");
 const { findOne } = require("./models/userModel");
 const { error } = require("console");
-const { check, body, validationResult } = require("express-validator");
+const { check, body, validationResult, Result } = require("express-validator");
 
 // setup express
 const app = express();
@@ -201,6 +201,130 @@ app.get("/users", async (req, res) => {
       msg: req.flash("msg"),
    });
 });
+
+app.get("/user/add", (req, res) => {
+   const data = {
+      title: "Add User Page",
+      nav: "User",
+   };
+   res.render("add-user", {
+      layout: "../layouts/main",
+      data,
+      msg: req.flash("msg"),
+   });
+});
+
+app.post(
+   "/users",
+   [
+      body("username").custom(async (value) => {
+         const duplicate = await schemaBook.findOne({ username: value });
+         if (duplicate) {
+            throw new Error("Username has already use");
+         }
+         return true;
+      }),
+      check("email", "You email is invalid").isEmail(),
+      check("password", "Id length must be at least 3").isLength({
+         min: 3,
+      }),
+   ],
+   (req, res) => {
+      // res.send(req.body);
+      const errors = validationResult(req);
+      // res.send(errors);
+      if (!errors.isEmpty()) {
+         const data = {
+            title: "Add User Page",
+            nav: "User",
+         };
+         res.render("add-user", {
+            layout: "../layouts/main",
+            data,
+            errors: errors.array(),
+         });
+      } else {
+         schemaBook.insertMany(req.body, (error, result) => {
+            req.flash("msg", "User Data has been add");
+            res.redirect("/users");
+         });
+      }
+   }
+);
+
+app.delete("/users", (req, res) => {
+   // res.send(req.body);
+   schemaBook.deleteOne({ _id: req.body.id }).then((result) => {
+      req.flash("msg", "User Data has been deleted");
+      res.redirect("/users");
+   });
+});
+
+app.get("/userEdit/:id", async (req, res) => {
+   const loadData = await schemaBook.findOne(req.params._id);
+   // res.send(loadData);
+   const data = {
+      title: "Edit User Page",
+      nav: "User",
+      loadData,
+   };
+   res.render("edit-user", {
+      layout: "../layouts/main",
+      data,
+      msg: req.flash("msg"),
+   });
+});
+
+app.put(
+   "/users",
+   [
+      body("username").custom(async (value, { req }) => {
+         const duplicate = await schemaBook.findOne({ username: value });
+         if (value !== req.body.usernameOld && duplicate) {
+            throw new Error("Username has already use");
+         }
+         return true;
+      }),
+      check("email", "You email is invalid").isEmail(),
+      check("password", "Id length must be at least 3").isLength({
+         min: 3,
+      }),
+   ],
+   (req, res) => {
+      // res.send(req.body);
+      const errors = validationResult(req);
+      // res.send(errors);
+      if (!errors.isEmpty()) {
+         const data = {
+            title: "Edit User Page",
+            nav: "User",
+            loadData: req.body,
+         };
+         res.render("edit-user", {
+            layout: "../layouts/main",
+            data,
+            errors: errors.array(),
+         });
+      } else {
+         schemaBook
+            .updateOne(
+               { _id: req.body._id },
+               {
+                  $set: {
+                     nama: req.body.nama,
+                     username: req.body.username,
+                     email: req.body.email,
+                     password: req.body.password,
+                  },
+               }
+            )
+            .then((result) => {
+               req.flash("msg", "User Data has been updated");
+               res.redirect("/users");
+            });
+      }
+   }
+);
 
 // midlleware if the route not found
 app.use((req, res) => {
